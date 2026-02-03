@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Dashboard Café</title>
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-section">
+            <h1>☕ Dashboard Café</h1>
+            <p>Bem-vindo ao painel de controle</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 15px; color: #666;">Conectando...</p>
+        </div>
+
+        <div id="loginForm">
+            <div class="button-container">
+                <button class="btn-microsoft" onclick="loginWithMicrosoft()">
+                    <svg class="microsoft-icon" viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="1" y="1" width="9" height="9" fill="white"/>
+                        <rect x="11" y="1" width="9" height="9" fill="white"/>
+                        <rect x="1" y="11" width="9" height="9" fill="white"/>
+                        <rect x="11" y="11" width="9" height="9" fill="white"/>
+                    </svg>
+                    Entrar com Microsoft
+                </button>
+            </div>
+        </div>
+
+        <div class="info-text">
+            Protegido por autenticação Microsoft OAuth 2.0
+        </div>
+    </div>
+
+    <script>
+        // Função para login com Microsoft
+        function loginWithMicrosoft() {
+            showLoading(true);
+            showError('');
+            
+            // Substitua pela sua URL de callback/endpoint do Django
+            const microsoftLoginUrl = '/auth/microsoft/login/';
+            
+            setTimeout(() => {
+                try {
+                    // Redireciona para o endpoint de autenticação
+                    window.location.href = microsoftLoginUrl;
+                } catch (error) {
+                    showError('Erro ao conectar com Microsoft. Tente novamente.');
+                    showLoading(false);
+                }
+            }, 500);
+        }
+
+        // Funções auxiliares para mensagens
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            if (message) {
+                errorDiv.textContent = message;
+                errorDiv.classList.add('show');
+            } else {
+                errorDiv.classList.remove('show');
+            }
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            if (message) {
+                successDiv.textContent = message;
+                successDiv.classList.add('show');
+            } else {
+                successDiv.classList.remove('show');
+            }
+        }
+
+        function showLoading(isLoading) {
+            const loading = document.getElementById('loading');
+            const form = document.getElementById('loginForm');
+            
+            if (isLoading) {
+                loading.style.display = 'block';
+                form.style.display = 'none';
+            } else {
+                loading.style.display = 'none';
+                form.style.display = 'block';
+            }
+        }
+
+        // Verifica se há parâmetros de erro na URL (ex: ?error=invalid_credentials)
+        window.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            const error = params.get('error');
+            const success = params.get('success');
+            
+            if (error) {
+                showError(decodeURIComponent(error));
+            }
+            if (success) {
+                showSuccess(decodeURIComponent(success));
+            }
+        });
+    </script>
+</body>
+</html>
