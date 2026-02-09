@@ -1,8 +1,6 @@
 from pathlib import Path
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -10,7 +8,7 @@ SECRET_KEY = 'django-insecure-@zj^nfbh@mnvwu^_elgh*o#ob%w@2a!+v7n)qbz@has0kxj2pn
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['10.61.1.193', 'localhost']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -44,7 +42,7 @@ ROOT_URLCONF = 'dashboard_cafe.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,12 +78,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Permite que o Django entenda que o NGINX está usando HTTP/HTTPS
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Garante que o Django use o Host enviado pelo NGINX para montar as URLs
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 LANGUAGE_CODE = 'pt-br'
 
@@ -95,11 +96,16 @@ USE_I18N = True
 
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
-STATIC_ROOT = r'C:\Users\aprendiz.ti\Documents\dashboard-cafe\dashboard-cafe\dashboard\static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-SITE_ID = 1
+SITE_ID = 2
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://localhost', 
+    'https://10.61.1.193'  
+]
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -111,14 +117,14 @@ LOGOUT_REDIRECT_URL = '/'
 
 SOCIALACCOUNT_PROVIDERS = {
     'microsoft': {
-        'TENANT': 'organizations',  # Use 'organizations' para multi-tenant ou seu tenant ID
+        'TENANT': 'organizations', 
         'SCOPE': ['User.Read'], 
         'AUTH_PARAMS': {
             'prompt': 'select_account',
         },
         'APP': {
-            'client_id': os.getenv('MICROSOFT_CLIENT_ID'),
-            'secret': os.getenv('MICROSOFT_SECRET'),
+            'client_id':'0c1c7c9c-c1f7-431c-a238-1b53a950a9d6',
+            'secret':'YC78Q~aywRIVtnK8Y0rcNG6BobC8js146-pLWbxg',
             'key': ''
         }
     }

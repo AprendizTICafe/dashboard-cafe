@@ -1,34 +1,43 @@
 from django.shortcuts import redirect
 from django.contrib.auth import login
 from django.views.decorators.http import require_http_methods
+from django.urls import reverse
 import requests
 import os
-from dashboard.config import MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET, MICROSOFT_TENANT, REDIRECT_URI
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 @require_http_methods(["GET"])
 def microsoft_callback(request):
     """
     Callback que recebe a resposta da Microsoft.
+    Autentica o usuário e o redireciona para o dashboard.
     """
     code = request.GET.get('code')
     error = request.GET.get('error')
 
+    login_url = reverse('login')
+
     if error:
         error_description = request.GET.get('error_description', 'Erro desconhecido')
-        return redirect(f'/?error={error_description}')
+        logger.warning(f'Microsoft OAuth error: {error} - {error_description}')
+        return redirect(f'{login_url}?error={error_description}')
 
     if not code:
-        return redirect('/?error=No authorization code received')
+        logger.error('No authorization code received from Microsoft')
+        return redirect(f'{login_url}?error=No authorization code received')
 
     try:
-        token_url = f"https://login.microsoftonline.com/{MICROSOFT_TENANT}/oauth2/v2.0/token"
+        token_url = f"https://login.microsoftonline.com/familiadositio.com.br/oauth2/v2.0/token"
 
         token_data = {
-            'client_id': MICROSOFT_CLIENT_ID,
-            'client_secret': MICROSOFT_CLIENT_SECRET,
+            'client_id': '0c1c7c9c-c1f7-431c-a238-1b53a950a9d6',
+            'client_secret': 'YC78Q~aywRIVtnK8Y0rcNG6BobC8js146-pLWbxg',
             'code': code,
-            'redirect_uri': REDIRECT_URI,
+            'redirect_uri': 'https://10.61.1.193/auth/microsoft/callback/',
             'grant_type': 'authorization_code'
         }
 
@@ -38,7 +47,8 @@ def microsoft_callback(request):
 
         access_token = token_json.get('access_token')
         if not access_token:
-            return redirect('/?error=Failed to get access token')
+            logger.error('Failed to get access token from Microsoft')
+            return redirect(f'{login_url}?error=Failed to get access token')
 
         user_info_url = 'https://graph.microsoft.com/v1.0/me'
         headers = {'Authorization': f'Bearer {access_token}'}
@@ -52,7 +62,8 @@ def microsoft_callback(request):
         last_name = user_data.get('surname', '')
 
         if not email:
-            return redirect('/?error=Could not retrieve email from Microsoft')
+            logger.error('Could not retrieve email from Microsoft')
+            return redirect(f'{login_url}?error=Could not retrieve email from Microsoft')
 
         from django.contrib.auth.models import User
 
@@ -72,10 +83,13 @@ def microsoft_callback(request):
             user.save()
 
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        logger.info(f'User {email} successfully authenticated via Microsoft')
 
-        return redirect('/dashboard/')
+        return redirect('dashboard')
 
     except requests.exceptions.RequestException as e:
-        return redirect(f'/?error=Authentication failed: {str(e)}')
+        logger.error(f'Request error during Microsoft authentication: {str(e)}')
+        return redirect(f'{login_url}?error=Authentication failed: {str(e)}')
     except Exception as e:
-        return redirect(f'/?error=An error occurred: {str(e)}')
+        logger.error(f'Unexpected error during Microsoft authentication: {str(e)}')
+        return redirect(f'{login_url}?error=An error occurred: {str(e)}')
