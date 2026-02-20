@@ -1,0 +1,66 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+body, html {
+    height: 100%;
+}
+
+/* Fundo com gradiente inspirado na imagem (Laranja/Vermelho) */
+.background-overlay {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #d32f2f 0%, #ff6f00 100%);
+    background-size: cover;
+}
+
+/* Card Branco Centralizado */
+.login-card {
+    background: rgb(255, 255, 255);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.instruction {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 25px;
+}
+
+.microsoft-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background-color: #1e2d80; /* Cor de fundo leve */
+    color: #ffffff;            /* Cor do texto cinza escuro padrão MS */
+    border: 1px solid #8c8c8c;
+    padding: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    text-decoration: none;     /* Remove o sublinhado do link */
+    border-radius: 2px;        /* Botões MS costumam ser mais quadrados */
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.microsoft-btn:hover {
+    background-color: #e5e5e5;
+    color: #000;
+}
+
+/* Garante que o SVG e o texto fiquem alinhados */
+.microsoft-btn svg {
+    flex-shrink: 0;
+}

@@ -1,0 +1,12 @@
+<h2>Olá, {{ user.first_name }}!</h2>
+<p>Você está logado com o e-mail: {{ user.email }}</p>
+
+{% if user.social_auth.all %}
+    <p>Autenticado via Microsoft.</p>
+{% endif %}
+
+<br>
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Sair do Sistema (Logout)</button>
+</form>
