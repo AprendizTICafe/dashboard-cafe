@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | Família do Sítio</title>
+    <title>Sistema de Gestão de Advertências</title>
     <link rel="stylesheet" href="{% static 'css/login.css' %}">
 </head>
 <body>
@@ -13,7 +13,7 @@
         <div class="login-card">
             <p class="instruction">Entre com seu e-mail corporativo</p>
             <a href="{% url 'social:begin' 'azuread-tenant-oauth2' %}" class="microsoft-btn">
-                <span>Autenticação Microsoft</span>
+                <span>Entrar com Microsoft 365</span>
                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 48 48">
                 <path fill="#ff5722" d="M6 6H22V22H6z" transform="rotate(-180 14 14)"></path><path fill="#4caf50" d="M26 6H42V22H26z" 
                 transform="rotate(-180 34 14)"></path><path fill="#ffc107" d="M26 26H42V42H26z" transform="rotate(-180 34 34)"></path>
@@ -22,5 +22,6 @@
             </a>
         </div>
     </main>
+    <footer> 2026 &copy; Sistema de Gestão de Advertências. Todos os direitos reservados.</footer>
 </body>
 </html>

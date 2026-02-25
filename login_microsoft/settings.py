@@ -1,4 +1,6 @@
 from pathlib import Path
+from dotenv import load_dotenv
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-ia!$x61@^@15kr)2)oq2zt1)98ja3&9fiu_gcdi0i1g^%@7k+z'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -27,12 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'social_django',
     'tela_login_microsoft',
-    'TI',
     'RH',
-    'FINANCEIRO',
-    'CONTABILIDADE',
-    'MARKETING',
-    'LOGISTICA',
 ]
 
 MIDDLEWARE = [
@@ -51,10 +48,16 @@ AUTHENTICATION_BACKENDS = [
     'social_core.backends.azuread_tenant.AzureADTenantOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 ]
+load_dotenv()
 
-SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY = '0c1c7c9c-c1f7-431c-a238-1b53a950a9d6'
-SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET = 'o6I8Q~XysOcUWg1WZlSzAv9iAzep0SJfmLaHzc3Q'
-SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = 'familiadositio.com.br' 
+SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY") 
+SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET")
+SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = os.getenv("SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID") 
+SOCIAL_AUTH_AZUREAD_OAUTH2_SCOPE = ['User.Read']
+SOCIAL_AUTH_AZUREAD_OAUTH2_EXTRA_DATA = [
+    ('department', 'department'),
+    ('jobTitle', 'cargo'),
+]
 
 TEMPLATES = [
     {
@@ -82,8 +85,8 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.user.create_user',
     'social_core.pipeline.social_auth.associate_user',
     'social_core.pipeline.social_auth.load_extra_data',
-    'social_core.pipeline.user.user_details',
-    'tela_login_microsoft.pipeline.redirect_by_department', 
+    'social_core.pipeline.user.user_details', 
+    'tela_login_microsoft.pipeline.save_department',
 )
 
 WSGI_APPLICATION = 'login_microsoft.wsgi.application'
