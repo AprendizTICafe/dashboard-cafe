@@ -2,9 +2,10 @@
 
 {% block 'conteudo' %}
   <div class="d-flex gap-2 mb-4">
-    <button type="button" class="btn btn-primary d-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#modalNovaAdvertencia">
-        <i class="bi bi-plus-circle me-2"></i> Nova Solicitação
-    </button>
+    <a href="{% url 'nova_advertencia' %}" class="btn btn-primary d-flex align-items-center shadow-sm text-white text-decoration-none">
+    <i class="bi bi-plus-circle me-2"></i> Nova Solicitação
+    </a>
+    <a href="{% url 'cadastro_colaborador' %}" class="btn btn-primary d-flex align-items-center shadow-sm text-white text-decoration-none">Cadastro de Colaboradores</a>
 
     <button type="button" class="btn btn-outline-secondary d-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#modalAcompanhar">
         <i class="bi bi-search me-2"></i> Acompanhar
@@ -26,7 +27,7 @@
                 <div class="card border-info h-100 shadow-sm">
                     <div class="card-body">
                         <h6 class="text-muted"><i class="bi bi-plus-circle me-2"></i>Advertências Solicitadas</h6>
-                        <p class="display-6 m-0 text-info">{{ advertencias_pendentes|default:"0" }}</p>
+                        <p class="display-6 m-0 text-info">{{ advertencias_solicitadas|default:"0" }}</p>
                     </div>
                 </div>
             </div>
@@ -35,7 +36,7 @@
                 <div class="card border-warning h-100 shadow-sm">
                     <div class="card-body">
                         <h6 class="text-muted"><i class="bi bi-people me-2"></i>Em Análise RH</h6>
-                        <p class="display-6 m-0 text-warning">{{ advertencias_rejeitadas|default:"0" }}</p>
+                        <p class="display-6 m-0 text-warning">{{ advertencias_em_analise_rh|default:"0" }}</p>
                     </div>
                 </div>
             </div>
@@ -44,7 +45,7 @@
                 <div class="card border-danger h-100 shadow-sm">
                     <div class="card-body">
                         <h6 class="text-muted"><i class="bi bi-shield-lock me-2"></i>Em Análise Diretoria</h6>
-                        <p class="display-6 m-0 text-danger">{{ advertencias_em_analise|default:"0" }}</p>
+                        <p class="display-6 m-0 text-danger">{{ advertencias_em_analise_diretoria|default:"0" }}</p>
                     </div>
                 </div>
             </div>
@@ -88,41 +89,49 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for advertencia in ultimas_advertencias %}
-                    <tr>
-                        <td>#{{ advertencia.id }}</td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-person me-2 text-muted"></i>
-                                {{ advertencia.colaborador }}
-                            </div>
-                        </td>
-                        <td>{{ advertencia.data_solicitacao|date:"d/m/Y H:i" }}</td>
-                        <td>
-                            {% if advertencia.status == 'Concluída' %}
-                                <span class="badge rounded-pill bg-secondary">Concluída</span>
-                            {% elif advertencia.status == 'Aprovada' %}
-                                <span class="badge rounded-pill bg-success">Aprovada</span>
-                            {% elif advertencia.status == 'Em Análise RH' %}
-                                <span class="badge rounded-pill bg-warning text-dark">Em Análise RH</span>
-                            {% elif advertencia.status == 'Em Análise Diretoria' %}
-                                <span class="badge rounded-pill bg-danger">Em Análise Diretoria</span>
-                            {% else %}
-                                <span class="badge rounded-pill bg-info text-dark">{{ advertencia.status }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">
-                            <a href="#" class="btn btn-sm btn-outline-primary" title="Visualizar Detalhes">
-                                <i class="bi bi-eye"></i> Visualizar
-                            </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center text-muted py-4">Nenhuma advertência encontrada.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+    {% for advertencia in ultimas_advertencias %}
+    <tr>
+        <td>#{{ advertencia.AdvertenciaID }}</td>
+        
+        <td>
+            <div class="d-flex align-items-center">
+                <i class="bi bi-person me-2 text-muted"></i>
+                {{ advertencia.Employee.Name }}
+            </div>
+        </td>
+        
+        <td>{{ advertencia.CreatedAt|date:"d/m/Y H:i" }}</td>
+        
+        <td>
+            {% if advertencia.CurrentStage == 'Concluída' %}
+                <span class="badge rounded-pill bg-secondary">Concluída</span>
+            
+            {% elif advertencia.CurrentStage == 'Aprovada' %}
+                <span class="badge rounded-pill bg-success">Aprovada</span>
+            
+            {% elif advertencia.CurrentStage == 'Em Análise RH' %}
+                <span class="badge rounded-pill bg-warning text-dark">Em Análise RH</span>
+            
+            {% elif advertencia.CurrentStage == 'Em Análise Diretoria' %}
+                <span class="badge rounded-pill bg-danger">Em Análise Diretoria</span>
+            
+            {% else %}
+                <span class="badge rounded-pill bg-info text-dark">{{ advertencia.CurrentStage }}</span>
+            {% endif %}
+        </td>
+        
+        <td class="text-center">
+            <a href="#" class="btn btn-sm btn-outline-primary" title="Visualizar Detalhes">
+                <i class="bi bi-eye"></i> Visualizar
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5" class="text-center text-muted py-4">Nenhuma advertência encontrada.</td>
+    </tr>
+    {% endfor %}
+</tbody>
             </table>
         </div>
     </div>
@@ -135,7 +144,7 @@
                 <h5 class="modal-title" id="modalFiltroLabel"><i class="bi bi-filter me-2"></i>Filtrar Advertências</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="GET" action="{% url 'advertencias' %}">
+            <form method="GET" action="{% url 'portal' %}">
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-12">
@@ -160,47 +169,13 @@
                     </div>
                 </div>
                 <div class="modal-footer bg-light">
-                    <a href="{% url 'advertencias' %}" class="btn btn-sm btn-link text-decoration-none text-muted">Limpar Filtros</a>
+                    <a href="{% url 'portal' %}" class="btn btn-sm btn-link text-decoration-none text-muted">Limpar Filtros</a>
                     <button type="submit" class="btn btn-primary px-4">Aplicar Filtros</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-<div class="modal fade" id="modalNovaAdvertencia" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nova Solicitação de Advertência</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="{% url 'nova_advertencia' %}">
-                {% csrf_token %}
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-8">
-                            <label class="form-label fw-bold small">Colaborador</label>
-                            <input type="text" name="colaborador" class="form-control" placeholder="Nome completo" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold small">Data da Ocorrência</label>
-                            <input type="date" name="data_ocorrência" class="form-control" required>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label fw-bold small">Motivo / Descrição</label>
-                            <textarea name="descricao" class="form-control" rows="4" placeholder="Descreva detalhadamente o ocorrido..."></textarea>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Enviar para RH</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 <div class="modal fade" id="modalAcompanhar" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

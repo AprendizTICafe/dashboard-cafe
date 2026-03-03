@@ -53,10 +53,11 @@ load_dotenv()
 SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY = os.getenv("SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_KEY") 
 SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET = os.getenv("SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET")
 SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = os.getenv("SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID") 
-SOCIAL_AUTH_AZUREAD_OAUTH2_SCOPE = ['User.Read']
-SOCIAL_AUTH_AZUREAD_OAUTH2_EXTRA_DATA = [
+SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SCOPE = ['User.Read']
+SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_EXTRA_DATA = [
     ('department', 'department'),
     ('jobTitle', 'cargo'),
+    ('displayName', 'display_name'),
 ]
 
 TEMPLATES = [
@@ -75,6 +76,7 @@ TEMPLATES = [
         },
     },
 ]
+SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_RESOURCE = 'https://graph.microsoft.com'
 
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
@@ -94,7 +96,6 @@ WSGI_APPLICATION = 'login_microsoft.wsgi.application'
 
 SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_REDIRECT_URI = 'http://localhost:8000/oauth/complete/azuread-tenant-oauth2/'
 
-SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_EXTRA_DATA = ['department']
 SECURE_SSL_REDIRECT = False
 
 # Database

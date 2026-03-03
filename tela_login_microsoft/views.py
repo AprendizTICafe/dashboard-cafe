@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login
-from .models import Advertencia
+from .models import Advertencia, Profile
+from django.db.models import Q
+
 
 # Create your views here.
 
@@ -26,15 +28,23 @@ def base(request):
 
 def painel_view(request):
     user = request.user
+
+    try:
+        user_dept = user.profile.department
+    except Profile.DoesNotExist:
+        user_dept = None
     
     # Se o usuário for superusuário ou do RH central, vê tudo
     # Caso contrário, filtra pelo departamento do gestor
-    if user.is_superuser or user.groups.filter(name='RH_Central').exists():
+    if user.is_superuser or user.groups.filter(name='Recursos Humanos').exists():
         advertencias_queryset = Advertencia.objects.all()
     else:
         # Filtra advertências onde o solicitante é o usuário logado 
         # OU o departamento é o mesmo do usuário
-        advertencias_queryset = Advertencia.objects.filter(solicitante=user)
+        profile = Profile.objects.get(user=user)
+        advertencias_queryset = Advertencia.objects.filter(
+            Q(solicitante=user) | Q(departamento=profile.department)
+        )
 
     # Estatísticas baseadas no QuerySet filtrado
     context = {
@@ -48,3 +58,4 @@ def painel_view(request):
     }
     
     return render(request, 'base.html', context)
+

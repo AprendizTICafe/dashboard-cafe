@@ -3,7 +3,7 @@ from . import views as rh_views
 
 
 urlpatterns = [
-path('rh/advertencias/', rh_views.advertencias, name='advertencias'),
-path('nova-advertencia/', rh_views.nova_advertencia, name='nova_advertencia'),
-path('acompanhar-advertencias/', rh_views.acompanhar_advertencias, name='acompanhar_advertencias'),
+path('portal/', rh_views.portal, name='portal'),
+path('portal/nova-advertencia/', rh_views.nova_advertencia, name='nova_advertencia'),
+path('portal/cadastro-colaborador/', rh_views.cadastro_colaborador, name='cadastro_colaborador'),
 ]

@@ -1,16 +1,19 @@
+from .services import fetch_full_user_data
+from .models import Profile
+
 def save_department(backend, user, response, *args, **kwargs):
-    # Usar 'in' garante que pegue qualquer variação do nome do backend Azure
     if 'azuread' in backend.name:
-        dept = response.get('department')
+        token = response.get('access_token')
         
-        # Log para você ver no terminal se o dado está chegando
-        print(f"--- DEBUG PIPELINE ---")
-        print(f"Backend: {backend.name}")
-        print(f"Response data: {response}") 
-        
-        if dept:
-            from .models import Profile
-            profile, created = Profile.objects.get_or_create(user=user)
-            profile.department = dept
-            profile.save()
-            print(f"Departamento {dept} salvo com sucesso!")
+        if token and '.' in token:
+            full_data = fetch_full_user_data(token)
+            
+            if full_data:
+                profile, _ = Profile.objects.get_or_create(user=user)
+                
+                # Captura o departamento do novo JSON com Select
+                dept = full_data.get('department')
+                profile.department = dept if dept else "Não Informado"
+                
+                profile.save()
+                print(f">>> Departamento final salvo no banco: {profile.department}")
