@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block 'conteudo' %}
+<div class="d-flex gap-2 mb-4">
+</div>
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h4 class="card-title text-center">Estatísticas</h4>
+        <hr>
+        <div class="row row-cols-1 row-cols-md-4 g-3">
+            
+            <div class="col">
+                <div class="card bg-danger text-white h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <h6 class="text-white-50 text-nowrap"><i class="bi bi-shield-lock me-2"></i>Em Análise</h6>
+                        <p class="display-6 m-0 fw-bold text-white">{{ advertencias_em_analise_diretoria|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card bg-success text-white h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <h6 class="text-white-50 text-nowrap"><i class="bi bi-check2-all me-2"></i>Aprovadas</h6>
+                        <p class="display-6 m-0 fw-bold text-white">{{ advertencias_aprovadas|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card bg-warning text-dark h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <h6 class="text-white-50 text-nowrap" style="color: rgba(0,0,0,0.5) !important;"><i class="bi bi-exclamation-triangle me-2"></i>Sindicância</h6>
+                        <p class="display-6 m-0 fw-bold text-dark">{{ advertencias_em_sindicancia|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card bg-secondary text-white h-100 shadow-sm border-0">
+                    <div class="card-body text-center">
+                        <h6 class="text-white-50 text-nowrap"><i class="bi bi-archive me-2"></i>Concluídas</h6>
+                        <p class="display-6 m-0 fw-bold text-white">{{ advertencias_concluidas|default:"0" }}</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<br>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title m-0"><i class="bi bi-clock-history me-2"></i>Advertências Aguardando Análise</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Colaborador</th>
+                        <th>Data Solicitação</th>
+                        <th>Status</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+    {% for advertencia in ultimas_advertencias %}
+    <tr>
+        <td>#{{ advertencia.AdvertenciaID }}</td>
+        
+        <td>
+            <div class="d-flex align-items-center">
+                <i class="bi bi-person me-2 text-muted"></i>
+                {{ advertencia.ColaboradorID.Name }}
+            </div>
+        </td>
+        
+        <td>{{ advertencia.CreatedAt|date:"d/m/Y H:i" }}</td>
+        
+        <td>
+            {% if advertencia.CurrentStage == 'analise_diretoria' %}
+                <span class="badge rounded-pill bg-danger">Análise Diretoria</span>
+            {% elif advertencia.CurrentStage == 'aprovada' %}
+                <span class="badge rounded-pill bg-success">Aprovada</span>
+            {% elif advertencia.CurrentStage == 'em_sindicancia' %}
+                <span class="badge rounded-pill bg-warning">Sindicância</span>
+            {% else %}
+                <span class="badge rounded-pill bg-secondary">{{ advertencia.CurrentStage|title }}</span>
+            {% endif %}
+        </td>
+        
+        <td class="text-center">
+            <a href="{% url 'diretoria:view_advertencia_diretoria' advertencia.AdvertenciaID %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-eye me-1"></i>Visualizar
+            </a>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5" class="text-center text-muted py-4">Nenhuma advertência aguardando análise.</td>
+    </tr>
+    {% endfor %}
+</tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

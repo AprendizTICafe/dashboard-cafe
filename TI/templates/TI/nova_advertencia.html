@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block 'conteudo' %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'ti:advertencia' %}">Voltar</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Nova Solicitação</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="card-title m-0">
+                        <i class="bi bi-plus-circle me-2"></i>Nova Solicitação de Advertência
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{% url 'ti:nova_advertencia' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label fw-bold text-secondary">Colaborador</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-person"></i></span>
+                                    <select name="colaborador" class="form-select" required>
+                                        <option value="" selected disabled>Selecione o funcionário...</option>
+                                        {% for colaborador in colaboradores %}
+                                            <option value="{{ colaborador.ColaboradorID }}">
+                                                {{ colaborador.Name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold text-secondary">Data da Ocorrência</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-calendar-event"></i></span>
+                                    <input type="date" name="data_ocorrencia" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-bold text-secondary">Motivo / Descrição Detalhada</label>
+                                <textarea name="Descricao" class="form-control" rows="6" 
+                                    placeholder="Descreva detalhadamente o ocorrido..." required></textarea>
+                                <div class="form-text">Forneça o máximo de detalhes para agilizar a análise do RH.</div>
+                            </div>
+
+                            <div class="col-12 mt-3">
+                                <label class="form-label fw-bold text-secondary d-flex justify-content-between">
+                                    Anexos
+                                    <span id="contadorArquivos" class="badge bg-info text-dark" style="display:none;">0 arquivos</span>
+                                </label>
+                                <input type="file" name="arquivos" class="form-control shadow-sm" id="inputArquivos" 
+                                    multiple accept=".jpg,.jpeg,.png,.pdf" required>
+                                <div class="form-text">
+                                    Máximo de 5 arquivos (10MB cada). Formatos: JPG, PNG, PDF.
+                                </div>
+                                <ul id="listaArquivos" class="list-group list-group-flush mt-2 small"></ul>
+                                <div id="fileError" class="text-danger small mt-2 fw-bold" style="display:none;"></div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'ti:advertencia' %}" class="btn btn-light border px-4">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-5 shadow-sm">
+                                <i class="bi bi-send me-2"></i>Enviar Solicitação
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// 1. Variáveis Globais para gerenciar a lista virtual
+let listaDeArquivosVirtual = new DataTransfer();
+const inputGerador = document.getElementById('inputArquivos');
+const listaVisual = document.getElementById('listaArquivos');
+const contador = document.getElementById('contadorArquivos');
+const errorDiv = document.getElementById('fileError');
+
+// 2. Função para formatar o tamanho (Bytes para KB/MB)
+function formatarTamanho(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const tamanhos = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + tamanhos[i];
+}
+
+// 3. Função para desenhar a lista na tela
+function renderizarLista() {
+    listaVisual.innerHTML = '';
+    const arquivosAtuais = listaDeArquivosVirtual.files;
+
+    for (let i = 0; i < arquivosAtuais.length; i++) {
+        const f = arquivosAtuais[i];
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center bg-light mb-1 border rounded';
+        
+        li.innerHTML = `
+            <div class="d-flex flex-column">
+                <span class="fw-bold text-dark" style="font-size: 0.85rem;">
+                    <i class="bi bi-file-earmark-check me-2 text-success"></i>${f.name}
+                </span>
+                <small class="text-muted ms-4">${formatarTamanho(f.size)}</small>
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="removerArquivo(${i})">
+                <i class="bi bi-trash"></i>
+            </button>
+        `;
+        listaVisual.appendChild(li);
+    }
+
+    // Atualiza o badge do contador
+    if (arquivosAtuais.length > 0) {
+        contador.innerText = `${arquivosAtuais.length} arquivo(s) selecionado(s)`;
+        contador.style.display = 'inline-block';
+    } else {
+        contador.style.display = 'none';
+    }
+}
+
+// 4. Função para remover um arquivo específico
+function removerArquivo(indice) {
+    const novaLista = new DataTransfer();
+    const arquivosAtuais = listaDeArquivosVirtual.files;
+
+    for (let i = 0; i < arquivosAtuais.length; i++) {
+        if (i !== indice) {
+            novaLista.items.add(arquivosAtuais[i]);
+        }
+    }
+
+    listaDeArquivosVirtual = novaLista;
+    inputGerador.files = listaDeArquivosVirtual.files; // Sincroniza o input real
+    renderizarLista();
+}
+
+// 5. Evento de quando o usuário seleciona arquivos
+inputGerador.addEventListener('change', function() {
+    const novosArquivos = Array.from(this.files);
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    
+    errorDiv.style.display = 'none';
+
+    novosArquivos.forEach(arquivo => {
+        // Validação de limite máximo (5)
+        if (listaDeArquivosVirtual.items.length >= 5) {
+            errorDiv.innerText = '⚠️ Limite de 5 arquivos atingido.';
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        // Validação de tamanho individual
+        if (arquivo.size > maxSize) {
+            alert(`O arquivo "${arquivo.name}" excede o limite de 10MB.`);
+            return;
+        }
+
+        // Adiciona à nossa lista persistente
+        listaDeArquivosVirtual.items.add(arquivo);
+    });
+
+    // Sincroniza o input do HTML com a nossa lista virtual
+    this.files = listaDeArquivosVirtual.files;
+    renderizarLista();
+});
+</script>
+{% endblock %}

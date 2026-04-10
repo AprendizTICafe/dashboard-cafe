@@ -1,0 +1,11 @@
+
+/* ========== HORA DE BRASÍLIA ==========*/
+
+.brasilia-time {
+    font-family: 'Monaco', 'Courier New', monospace;
+    letter-spacing: 0.05em;
+    padding: 0.5rem 1rem;
+    border-radius: 0.35rem;
+    background-color: rgba(0, 0, 0, 0.05);
+    color: inherit;
+}

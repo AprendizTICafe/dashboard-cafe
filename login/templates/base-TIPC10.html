@@ -1,0 +1,343 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br" data-bs-theme="light"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Família do Sítio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <style>
+        .brasilia-time {
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .theme-toggle-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.35rem;
+            border: none;
+            cursor: pointer;
+            background-color: transparent;
+            color: inherit;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .theme-toggle-btn:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+        
+        body[data-bs-theme="dark"] .theme-toggle-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="mobile-sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="sidebar" id="sidebar">
+       <div class="user-profile">
+    <i class="bi bi-person-circle fs-1"></i>
+    <h6 class="mt-2 text-white">{{ user.profile.nome|default:user.first_name|default:user.username }} {{ user.profile.segundo_nome|default:user.last_name|default:"" }}</h6>
+    <p class="small text-white">{{ user.profile.department|default:"Setor não identificado" }}</p>
+    </div> 
+        
+        <nav class="mt-3">
+    
+    {% if user.profile.department == "RH" %}
+    <div class="nav-item">
+        <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menuRH" role="button">
+            <span><i class="bi bi-grip-vertical"></i> RH</span>
+            <i class="bi bi-chevron-down small"></i>
+        </a>
+        <div class="collapse show" id="menuRH">
+            <div class="submenu">
+                <a href="{% url 'rh:advertencia' %}" class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-file-earmark-text me-2"></i> Advertências</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if user.profile.department == "Contabilidade" %}
+    <div class="nav-item">
+        <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menuContabilidade" role="button">
+            <span><i class="bi bi-grip-vertical"></i> Contabilidade</span>
+            <i class="bi bi-chevron-down small"></i>
+        </a>
+        <div class="collapse show" id="menuContabilidade">
+            <div class="submenu">
+                <a href="{% url 'contabilidade:advertencia' %}" class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-file-earmark-text me-2"></i> Advertências</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if user.profile.department == "Financeiro" %}
+    <div class="nav-item">
+        <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menuFinanceiro" role="button">
+            <span><i class="bi bi-grip-vertical"></i> Financeiro</span>
+            <i class="bi bi-chevron-down small"></i>
+        </a>
+        <div class="collapse show" id="menuFinanceiro">
+            <div class="submenu">
+                <a href="{% url 'financeiro:advertencia' %}" class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-file-earmark-text me-2"></i> Advertências</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if user.profile.department == "Logistica" %}
+    <div class="nav-item">
+        <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menuLogistica" role="button">
+            <span><i class="bi bi-grip-vertical"></i> Logística</span>
+            <i class="bi bi-chevron-down small"></i>
+        </a>
+        <div class="collapse show" id="menuLogistica">
+            <div class="submenu">
+                <a href="{% url 'logistica:advertencia' %}" class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-file-earmark-text me-2"></i> Advertências</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if user.profile.department == "Manutencao" %}
+    <div class="nav-item">
+        <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menuManutencao" role="button">
+            <span><i class="bi bi-grip-vertical"></i> Manutenção</span>
+            <i class="bi bi-chevron-down small"></i>
+        </a>
+        <div class="collapse show" id="menuManutencao">
+            <div class="submenu">
+                <a href="{% url 'manutencao:advertencia' %}" class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-file-earmark-text me-2"></i> Advertências</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if user.profile.department == "Marketing" %}
+    <div class="nav-item">
+        <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menuMarketing" role="button">
+            <span><i class="bi bi-grip-vertical"></i> Marketing</span>
+            <i class="bi bi-chevron-down small"></i>
+        </a>
+        <div class="collapse show" id="menuMarketing">
+            <div class="submenu">
+                <a href="{% url 'marketing:advertencia' %}" class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-file-earmark-text me-2"></i> Advertências</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if user.profile.department == "Segurança do Trabalho" %}
+    <div class="nav-item">
+        <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menuSegurancaTrabalho" role="button">
+            <span><i class="bi bi-grip-vertical"></i> Segurança do Trabalho</span>
+            <i class="bi bi-chevron-down small"></i>
+        </a>
+        <div class="collapse show" id="menuSegurancaTrabalho">
+            <div class="submenu">
+                <a href="{% url 'segurancatrabalho:advertencia' %}" class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-file-earmark-text me-2"></i> Advertências</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if user.profile.department == "Tecnologia da Informação" %}
+    <div class="nav-item">
+        <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menuTI" role="button">
+            <span><i class="bi bi-grip-vertical"></i> TI</span>
+            <i class="bi bi-chevron-down small"></i>
+        </a>
+        <div class="collapse show" id="menuTI">
+            <div class="submenu">
+                <a href="{% url 'ti:advertencia' %}" class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-file-earmark-text me-2"></i> Advertências</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if user.profile.department == "Diretoria" %}
+    <div class="nav-item">
+        <a class="nav-link d-flex justify-content-between align-items-center" data-bs-toggle="collapse" href="#menuDiretoria" role="button">
+            <span><i class="bi bi-grip-vertical"></i> Diretoria</span>
+            <i class="bi bi-chevron-down small"></i>
+        </a>
+        <div class="collapse show" id="menuDiretoria">
+            <div class="submenu">
+                <a href="{% url 'diretoria:advertencia' %}" class="d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-file-earmark-text me-2"></i> Advertências</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</nav>
+    </div>
+
+    <div class="main-content">
+        <header class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+            <div class="d-flex align-items-center gap-2">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" title="Menu">
+                    <i class="bi bi-list"></i>
+                </button>
+                <a href="{% url 'base' %}"><h4>Painel</h4></a>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="brasilia-time">
+                    <i class="bi bi-clock-history"></i>
+                    <span id="brasiliaTime">--:--:--</span>
+                </div>
+                <button id="themeToggle" class="theme-toggle-btn" title="Alternar tema">
+                    <i class="bi bi-moon-stars-fill"></i>
+                </button>
+            </div>
+        </header>
+
+        {% if messages %}
+            <div class="mb-3">
+                {% for message in messages %}
+                    <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm" role="alert">
+                        {% if message.tags == 'success' %}
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        {% endif %}
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% block 'conteudo' %}
+
+    
+        {% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // ========== CONTROLE DE TEMA DARK/LIGHT ==========
+        const html = document.documentElement;
+        const body = document.body;
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Aplicar tema savedTheme imediatamente para evitar flashing
+        function applyTheme(theme) {
+            html.setAttribute('data-bs-theme', theme);
+            body.setAttribute('data-bs-theme', theme);
+            updateThemeIcon(theme);
+        }
+        
+        // Recuperar preferência salva ou usar 'light' como padrão
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        applyTheme(savedTheme);
+        
+        // Alternar tema ao clicar no botão
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        // Atualizar ícone do botão de tema
+        function updateThemeIcon(theme) {
+            const icon = themeToggle.querySelector('i');
+            if (theme === 'dark') {
+                icon.classList.remove('bi-moon-stars-fill');
+                icon.classList.add('bi-sun-fill');
+            } else {
+                icon.classList.remove('bi-sun-fill');
+                icon.classList.add('bi-moon-stars-fill');
+            }
+        }
+        
+        // ========== HORÁRIO DE BRASÍLIA ==========
+        function updateBrasiliaTime() {
+            const options = {
+                timeZone: 'America/Sao_Paulo',
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            
+            const brasiliaTime = new Date().toLocaleString('pt-BR', options);
+            document.getElementById('brasiliaTime').textContent = brasiliaTime;
+        }
+        
+        // Atualizar hora a cada segundo
+        updateBrasiliaTime();
+        setInterval(updateBrasiliaTime, 1000);
+        
+        // Aplicar tema novamente ao carregar (redundância de segurança)
+        window.addEventListener('load', () => {
+            const theme = localStorage.getItem('theme') || 'light';
+            applyTheme(theme);
+        });
+        
+        // ========== MOBILE SIDEBAR TOGGLE ==========
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        // Toggle sidebar ao clicar no botão
+        mobileMenuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('show');
+            sidebarOverlay.classList.toggle('show');
+        });
+        
+        // Fechar sidebar ao clicar no overlay
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+        });
+        
+        // Fechar sidebar ao clicar em um link
+        const sidebarLinks = sidebar.querySelectorAll('a');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                // Verificar se é um link de collapse (menu dropdown)
+                if (!link.getAttribute('data-bs-toggle')) {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                }
+            });
+        });
+        
+        // Fechar sidebar ao redimensionar para desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 767) {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>

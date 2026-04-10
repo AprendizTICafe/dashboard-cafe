@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+
+{% block 'conteudo' %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <h3 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Detalhes da Advertência #{{ advertencia.AdvertenciaID }}</h3>
+    <a href="{% url 'rh:advertencia' %}" class="btn btn-secondary btn-sm">
+        <i class="bi bi-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Informações Principais -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="m-0"><i class="bi bi-info-circle me-2"></i>Informações Principais</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="text-muted small">Colaborador</label>
+                        <p class="fs-5 fw-bold">{{ advertencia.ColaboradorID.Name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">Departamento</label>
+                        <p class="fs-5 fw-bold">{{ advertencia.ColaboradorID.Department }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="text-muted small">Data do Ocorrido</label>
+                        <p class="fs-5 fw-bold">{{ advertencia.IncidentDate|date:"d/m/Y" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">Status</label>
+                        <p>
+                            <span class="badge rounded-pill bg-warning text-dark fs-5">{{ advertencia.CurrentStage }}</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-muted small">Solicitante (TI)</label>
+                        <p class="fs-5">{{ advertencia.GestorOriginID }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">Última atualização</label>
+                        <p class="fs-5">{{ advertencia.UpdatedAt|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Descrição Original (TI) -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="m-0"><i class="bi bi-file-text me-2"></i>Descrição do Ocorrido (Enviada pela TI)</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-justify">{{ advertencia.Description }}</p>
+            </div>
+        </div>
+
+        <!-- Texto Oficial (Edição do RH) -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="m-0"><i class="bi bi-pencil-square me-2"></i>Texto Oficial</h5>
+                <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#modalEditarTexto">
+                    <i class="bi bi-pencil me-1"></i>Editar
+                </button>
+            </div>
+            <div class="card-body">
+                {% if advertencia.OfficialText %}
+                    <p class="text-justify">{{ advertencia.OfficialText }}</p>
+                {% else %}
+                    <p class="text-muted fst-italic">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Nenhum texto oficial foi definido ainda. Clique em "Editar" para adicionar.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Anexos -->
+        {% if anexos %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="m-0"><i class="bi bi-paperclip me-2"></i>Anexos</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for anexo in anexos %}
+                    <a href="{{ anexo.FilePath.url }}" target="_blank" class="list-group-item list-group-item-action">
+                        <i class="bi bi-file me-2"></i>
+                        {{ anexo.FileName }}
+                        <span class="badge rounded-pill bg-secondary ms-auto">{{ anexo.FileType|upper }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Histórico do Workflow -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5 class="m-0"><i class="bi bi-clock-history me-2"></i>Histórico</h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% for etapa in workflow %}
+                    <div class="timeline-item mb-3">
+                        <div class="d-flex align-items-start">
+                            <div class="timeline-marker bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; flex-shrink: 0;">
+                                <i class="bi bi-check"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="fw-bold mb-1">
+                                    {% if etapa.Stage == 'criada' %}
+                                        Solicitação Criada
+                                    {% elif etapa.Stage == 'revisa_rh' %}
+                                        RH Revisou
+                                    {% elif etapa.Stage == 'envia_diretoria' %}
+                                        RH Enviou para Diretoria
+                                    {% elif etapa.Stage == 'diretoria_aprova' %}
+                                        Diretoria Aprovou
+                                    {% elif etapa.Stage == 'diretoria_reprova' %}
+                                        Diretoria Reprovou
+                                    {% elif etapa.Stage == 'rh_agenda' %}
+                                        RH Agendou
+                                    {% elif etapa.Stage == 'rh_cancela' %}
+                                        RH Cancelou
+                                    {% elif etapa.Stage == 'concluida' %}
+                                        Concluída
+                                    {% else %}
+                                        {{ etapa.Stage }}
+                                    {% endif %}
+                                </h6>
+                                <p class="text-muted small mb-1">
+                                    {% if etapa.GestorRH %}
+                                        Por: <strong>{{ etapa.GestorRH.Name }}</strong>
+                                    {% endif %}
+                                </p>
+                                {% if etapa.Comments %}
+                                <p class="text-secondary small mb-0">{{ etapa.Comments }}</p>
+                                {% endif %}
+                                <small class="text-muted">{{ etapa.CreatedAt|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coluna de Ações -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm sticky-top" style="top: 20px;">
+            <div class="card-header bg-warning text-dark fw-bold">
+                <i class="bi bi-lightning me-2"></i>Ações Disponíveis
+            </div>
+            <div class="card-body">
+            <form method="POST" action="{% url 'rh:download_pdf' advertencia.AdvertenciaID %}" class="mb-3">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-info text-white w-100">
+                    <i class="bi bi-file-pdf me-2"></i>Baixar PDF para Assinatura
+                </button>
+            </form>
+            <hr>
+            {% if advertencia.CurrentStage == 'analise_rh' %}
+            <form method="POST" action="{% url 'rh:send_to_diretoria' advertencia.AdvertenciaID %}" class="mb-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Deseja enviar esta advertência para a Diretoria?');">
+                    <i class="bi bi-send me-2"></i>Enviar para Diretoria
+                </button>
+            </form>
+            <p class="small text-muted text-center">
+                <i class="bi bi-info-circle me-1"></i>
+                Após enviar, a advertência será analisada pela Diretoria para aprovação.
+            </p>
+            {% elif advertencia.CurrentStage == 'aprovada' %}
+            <button class="btn btn-warning w-100 mb-2" data-bs-toggle="modal" data-bs-target="#modalAgendamento">
+                <i class="bi bi-calendar-event me-2"></i>Agendar Advertência
+            </button>
+            <p class="small text-muted text-center">
+                <i class="bi bi-info-circle me-1"></i>
+                Advertência foi aprovada. Agende a data de aplicação.
+            </p>
+            {% elif advertencia.CurrentStage == 'em_sindicancia' %}
+            <form method="POST" action="{% url 'rh:send_sindicancia_to_diretoria' advertencia.AdvertenciaID %}" class="mb-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Deseja enviar a sindicância para a Diretoria reanalisar?');">
+                    <i class="bi bi-send me-2"></i>Enviar Sindicância para Diretoria
+                </button>
+            </form>
+            <p class="small text-muted text-center">
+                <i class="bi bi-info-circle me-1"></i>
+                Sindicância documentada. Envie para reavaliação da Diretoria.
+            </p>
+            {% else %}
+            <button type="button" class="btn btn-danger w-100 mb-2" disabled>
+                <i class="bi bi-send me-2"></i>Enviar para Diretoria (Indisponível)
+            </button>
+            <p class="small text-muted text-center">
+                <i class="bi bi-info-circle me-1"></i>
+                Aguardando ação.
+            </p>
+            {% endif %}
+            <hr>
+            {% if advertencia.CurrentStage == 'analise_rh' %}
+            <button class="btn btn-outline-success w-100" data-bs-toggle="modal" data-bs-target="#modalEditarTexto">
+                <i class="bi bi-pencil me-2"></i>Editar Texto Oficial
+            </button>
+            {% elif advertencia.CurrentStage == 'em_sindicancia' %}
+            <button class="btn btn-outline-info w-100" data-bs-toggle="modal" data-bs-target="#modalSindicancia">
+                <i class="bi bi-exclamation-triangle me-2"></i>Responder Sindicância
+            </button>
+            {% else %}
+            <button type="button" class="btn btn-outline-success w-100" disabled>
+                <i class="bi bi-pencil me-2"></i>Editar Texto Oficial (Indisponível)
+            </button>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Edição de Texto Oficial -->
+<div class="modal fade" id="modalEditarTexto" tabindex="-1" aria-labelledby="modalEditarTextoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalEditarTextoLabel">
+                    <i class="bi bi-pencil-square me-2"></i>Editar Texto Oficial da Advertência
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'rh:edit_advertencia' advertencia.AdvertenciaID %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <label for="OfficialText" class="form-label fw-bold">Texto Oficial <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="OfficialText" name="OfficialText" rows="8" required>{{ advertencia.OfficialText }}</textarea>
+                    <small class="text-muted">Este é o texto oficial que será registrado na advertência.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-2"></i>Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Investigação/Sindicância -->
+<div class="modal fade" id="modalInvestigacao" tabindex="-1" aria-labelledby="modalInvestigacaoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="modalInvestigacaoLabel">
+                    <i class="bi bi-search me-2"></i>Registrar Investigação/Sindicância
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'rh:start_investigation' advertencia.AdvertenciaID %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <label for="descricao_investigacao" class="form-label fw-bold">Descrição da Investigação <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="descricao_investigacao" name="descricao_investigacao" rows="5" required placeholder="Descreva os detalhes da investigação/sindicância..."></textarea>
+                    <small class="text-muted d-block mt-2">Descreva os pontos investigados, entrevistas realizadas, etc.</small>
+                    
+                    <label for="arquivos_investigacao" class="form-label fw-bold mt-3">Anexar Documentos <span class="text-danger">*</span> (Obrigatório)</label>
+                    <input type="file" class="form-control" id="arquivos_investigacao" name="arquivos_investigacao" multiple accept=".pdf,.doc,.docx,.jpg,.png,.xlsx" required>
+                    <small class="text-muted">Máximo 10MB por arquivo. Suporte: PDF, DOC, DOCX, JPG, PNG, XLSX</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-info text-white">
+                        <i class="bi bi-search me-2"></i>Registrar Investigação
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Sindicância -->
+<div class="modal fade" id="modalSindicancia" tabindex="-1" aria-labelledby="modalSindicanciaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title" id="modalSindicanciaLabel">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Responder Sindicância
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'rh:handle_sindicancia' advertencia.AdvertenciaID %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-warning" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Sindicância:</strong> A Diretoria devolveu esta advertência. Você deve documentar novos arquivos e detalhar o motivo.
+                    </div>
+                    
+                    <label for="detalhamento_sindicancia" class="form-label fw-bold">Detalhamento da Sindicância <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="detalhamento_sindicancia" name="detalhamento_sindicancia" rows="5" required placeholder="Descreva os motivos, investigações realizadas, entrevistas, etc..."></textarea>
+                    <small class="text-muted d-block mt-2">Detalhe por que a advertência deve ser reaprovada.</small>
+                    
+                    <label for="documentos_sindicancia" class="form-label fw-bold mt-3">Anexar Novos Documentos <span class="text-danger">*</span></label>
+                    <input type="file" class="form-control" id="documentos_sindicancia" name="documentos_sindicancia" multiple accept=".pdf,.doc,.docx,.jpg,.png,.xlsx" required>
+                    <small class="text-muted">Máximo 10MB por arquivo. Suporte: PDF, DOC, DOCX, JPG, PNG, XLSX</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-info text-white">
+                        <i class="bi bi-save me-2"></i>Salvar Sindicância
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Agendamento e Conclusão -->
+<div class="modal fade" id="modalAgendamento" tabindex="-1" aria-labelledby="modalAgendamentoLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="modalAgendamentoLabel">
+                    <i class="bi bi-calendar-event me-2"></i>Agendar Data de Aplicação
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{% url 'rh:schedule_and_conclude' advertencia.AdvertenciaID %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="alert alert-info" role="alert">
+                        <i class="bi bi-info-circle me-2"></i>
+                        <strong>Atenção:</strong> Ao agendar a data, a advertência será marcada como <strong>Concluída</strong> e finalizada no RH.
+                    </div>
+                    
+                    <label for="data_aplicacao" class="form-label fw-bold">Data de Aplicação <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="data_aplicacao" name="data_aplicacao" required>
+                    <small class="text-muted">Selecione a data em que a advertência será aplicada ao colaborador.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-warning text-dark" onclick="return confirm('Tem certeza? Esta ação marcará a advertência como Concluída.');">
+                        <i class="bi bi-check-circle me-2"></i>Agendar e Finalizar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .timeline-item:not(:last-child) .timeline-marker::after {
+        content: '';
+        position: absolute;
+        width: 2px;
+        height: 50px;
+        background: #e9ecef;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .timeline-marker {
+        position: relative;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block 'conteudo' %}
+<div class="container py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'rh:advertencia' %}">Voltar</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Cadastrar Colaborador</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow border-0">
+                <div class="card-header bg-dark text-white py-3">
+                    <h5 class="card-title m-0 d-flex align-items-center">
+                        <i class="bi bi-person-plus-fill me-2"></i> Cadastro de Novo Colaborador
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{% url 'rh:cadastro_colaborador' %}">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="bi bi-card-heading me-1"></i> Informações Pessoais
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small">Nome Completo</label>
+                                    <input type="text" name="Name" class="form-control" placeholder="Ex: João Silva" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small">E-mail Corporativo</label>
+                                    <input type="email" name="Email" class="form-control" placeholder="joao@empresa.com" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small">Telefone / WhatsApp</label>
+                                    <input type="text" name="PhoneNumber" class="form-control" placeholder="(00) 00000-0000">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="bi bi-briefcase me-1"></i> Atribuições e Departamento
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small">Departamento</label>
+                                    <select name="Department" class="form-select" required>
+                                        <option value="" selected disabled>Selecione...</option>
+                                        {% for grupo in grupos %}
+                                        <option value="{{ grupo.name }}">{{ grupo.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold small">Cargo / Função</label>
+                                    <input type="text" name="Position" class="form-control" placeholder="Ex: Auxiliar Administrativo" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'rh:advertencia' %}" class="btn btn-outline-secondary px-4">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success px-5 shadow-sm">
+                                <i class="bi bi-check-circle me-2"></i>Salvar Colaborador
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

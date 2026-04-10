@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block 'conteudo' %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow border-0">
+                <div class="card-header bg-danger text-white py-3">
+                    <h5 class="card-title m-0">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Confirmar Remoção
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="lead mb-4">Tem certeza que deseja remover esta advertência?</p>
+                    <p class="text-muted">
+                        <i class="bi bi-info-circle me-2"></i>
+                        A advertência será marcada como inativa e não aparecerá mais na listagem.
+                    </p>
+                    
+                    <div class="d-flex gap-2 justify-content-end mt-4">
+                        <a href="{% url 'ti:advertencia' %}" class="btn btn-secondary px-4">
+                            <i class="bi bi-x-lg me-2"></i>Cancelar
+                        </a>
+                        <form method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger px-4">
+                                <i class="bi bi-trash me-2"></i>Confirmar Remoção
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

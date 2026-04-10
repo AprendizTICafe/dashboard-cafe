@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block 'conteudo' %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3><i class="bi bi-file-earmark-text me-2"></i>Detalhes da Advertência #{{ advertencia.AdvertenciaID }}</h3>
+    <a href="{% url 'ti:advertencia' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Voltar
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Informações Principais -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-primary text-white">
+                <h5 class="m-0"><i class="bi bi-info-circle me-2"></i>Informações Principais</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="text-muted small">Colaborador</label>
+                        <p class="fs-5 fw-bold">{{ advertencia.ColaboradorID.Name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">Departamento</label>
+                        <p class="fs-5 fw-bold">{{ advertencia.ColaboradorID.Department }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="text-muted small">Data do Ocorrido</label>
+                        <p class="fs-5 fw-bold">{{ advertencia.IncidentDate|date:"d/m/Y" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">Status</label>
+                        <p>
+                            {% if advertencia.CurrentStage == 'Solicitada' %}
+                                <span class="badge rounded-pill bg-info text-dark fs-5">{{ advertencia.CurrentStage }}</span>
+                            {% elif advertencia.CurrentStage == 'Análise RH' %}
+                                <span class="badge rounded-pill bg-warning text-dark fs-5">{{ advertencia.CurrentStage }}</span>
+                            {% elif advertencia.CurrentStage == 'Análise Diretoria' %}
+                                <span class="badge rounded-pill bg-danger fs-5">{{ advertencia.CurrentStage }}</span>
+                            {% elif advertencia.CurrentStage == 'Aprovada' %}
+                                <span class="badge rounded-pill bg-success fs-5">{{ advertencia.CurrentStage }}</span>
+                            {% elif advertencia.CurrentStage == 'Concluída' %}
+                                <span class="badge rounded-pill bg-secondary fs-5">{{ advertencia.CurrentStage }}</span>
+                            {% else %}
+                                <span class="badge rounded-pill bg-secondary fs-5">{{ advertencia.CurrentStage }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-muted small">Criado em</label>
+                        <p class="fs-5">{{ advertencia.CreatedAt|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-muted small">Última atualização</label>
+                        <p class="fs-5">{{ advertencia.UpdatedAt|date:"d/m/Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Descrição da Advertência -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="m-0"><i class="bi bi-file-text me-2"></i>Descrição do Ocorrido</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-justify">{{ advertencia.Description }}</p>
+            </div>
+        </div>
+
+        <!-- Texto Oficial -->
+        {% if advertencia.OfficialText %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="m-0"><i class="bi bi-check-circle me-2"></i>Texto Oficial</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-justify">{{ advertencia.OfficialText }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Anexos -->
+        {% if anexos %}
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="m-0"><i class="bi bi-paperclip me-2"></i>Anexos</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for anexo in anexos %}
+                    <a href="{{ anexo.FilePath.url }}" target="_blank" class="list-group-item list-group-item-action">
+                        <i class="bi bi-file me-2"></i>
+                        {{ anexo.FileName }}
+                        <span class="badge rounded-pill bg-secondary ms-auto">{{ anexo.FileType|upper }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Histórico do Workflow -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5 class="m-0"><i class="bi bi-clock-history me-2"></i>Histórico</h5>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    {% for etapa in workflow %}
+                    <div class="timeline-item mb-3">
+                        <div class="d-flex align-items-start">
+                            <div class="timeline-marker bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; flex-shrink: 0;">
+                                <i class="bi bi-check"></i>
+                            </div>
+                            <div class="ms-3">
+                                <h6 class="fw-bold mb-1">{{ etapa.Stage }}</h6>
+                                <p class="text-muted small mb-1">
+                                    {% if etapa.WarningWorkflowUserID %}
+                                        Por: <strong>{{ etapa.WarningWorkflowUserID.Name }}</strong>
+                                    {% endif %}
+                                </p>
+                                {% if etapa.Comments %}
+                                <p class="text-secondary small mb-0">{{ etapa.Comments }}</p>
+                                {% endif %}
+                                <small class="text-muted">{{ etapa.CreatedAt|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coluna de Ações -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm sticky-top" style="top: 20px;">
+            <div class="card-header bg-warning text-dark fw-bold">
+                <i class="bi bi-lightning me-2"></i>Ações Disponíveis
+            </div>
+            <div class="card-body">
+                {% if pode_enviar %}
+                <form method="POST" action="{% url 'ti:send_to_rh' advertencia.AdvertenciaID %}" class="mb-2">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary w-100" onclick="return confirm('Deseja realmente enviar esta advertência para o RH?');">
+                        <i class="bi bi-send me-2"></i>Enviar para RH
+                    </button>
+                </form>
+                <p class="small text-muted text-center">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Ao enviar, o status será alterado para "Análise RH"
+                </p>
+                {% else %}
+                <div class="alert alert-info alert-sm">
+                    <small>
+                        <i class="bi bi-info-circle me-1"></i>
+                        {% if advertencia.CurrentStage != 'Solicitada' %}
+                            Esta advertência já foi enviada para o próximo departamento.
+                        {% else %}
+                            Você não tem permissão para enviar esta advertência.
+                        {% endif %}
+                    </small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .timeline-item:not(:last-child) .timeline-marker::after {
+        content: '';
+        position: absolute;
+        width: 2px;
+        height: 50px;
+        background: #e9ecef;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .timeline-marker {
+        position: relative;
+    }
+</style>
+{% endblock %}
